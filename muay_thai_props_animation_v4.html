@@ -1,0 +1,1316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#090807" />
+  <title>Muay Thai Props Circle Demo</title>
+  <style>
+    :root{
+      color-scheme: dark;
+      --bg:#070707;
+      --bg2:#140e0b;
+      --panel:rgba(18,15,13,.92);
+      --panel2:rgba(28,22,18,.95);
+      --line:rgba(255,220,170,.16);
+      --text:#f9f4ee;
+      --muted:#c0b3a2;
+      --gold:#f2c46d;
+      --gold2:#d99c2b;
+      --red:#ea4b4b;
+      --red2:#ff7a7a;
+      --green:#55d8b1;
+      --blue:#7d90ff;
+      --orange:#ff9966;
+      --pink:#ff5e8e;
+      --shadow:0 24px 70px rgba(0,0,0,.36);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(220,145,20,.12), transparent 28rem),
+        radial-gradient(circle at 100% 100%, rgba(200,50,30,.10), transparent 32rem),
+        linear-gradient(140deg,#050505,#0a0807 40%, #110a08 75%, #080807);
+      padding:16px;
+    }
+    button,select{font:inherit}
+    .shell{width:min(1360px,100%);margin:0 auto}
+    header{
+      display:flex;justify-content:space-between;gap:18px;align-items:flex-end;
+      margin-bottom:14px;
+    }
+    .eyebrow{
+      margin:0 0 6px;color:var(--gold);font-size:.76rem;font-weight:900;
+      letter-spacing:.17em;text-transform:uppercase
+    }
+    h1{
+      margin:0;
+      font-size:clamp(1.7rem,4vw,3rem);
+      letter-spacing:-.045em;line-height:1.02;
+      max-width:840px
+    }
+    .brand-note{
+      max-width:380px;
+      margin:0 0 4px;
+      text-align:right;
+      color:var(--muted);
+      line-height:1.45;
+      font-size:.95rem
+    }
+    .layout{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 320px;
+      gap:14px;
+      align-items:start;
+    }
+    .stage-col{display:flex;flex-direction:column;gap:10px}
+    .stage-card,.info-card,.controls,.legend{
+      border:1px solid var(--line);
+      background:var(--panel);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(14px);
+    }
+    .stage-card{
+      border-radius:24px;
+      padding:10px;
+      overflow:hidden;
+      position:relative;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,.04), transparent 18%),
+        var(--panel);
+    }
+    canvas{
+      width:100%;
+      aspect-ratio:900/620;
+      display:block;
+      border-radius:16px;
+      background:#0d0b0a;
+    }
+    .controls{
+      display:flex;flex-wrap:wrap;gap:8px;align-items:center;
+      border-radius:18px;padding:10px 12px;background:var(--panel2);
+    }
+    .control-button,.field{
+      min-height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);color:var(--text)
+    }
+    .control-button{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:0 15px;font-weight:800;cursor:pointer;
+      transition:transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .control-button:hover{
+      transform:translateY(-1px);
+      border-color:rgba(242,196,109,.35);
+      background:rgba(255,255,255,.07);
+    }
+    .control-button.primary{
+      color:#1c1207;border-color:transparent;
+      background:linear-gradient(135deg,var(--gold),#ffdca0 70%);
+    }
+    .control-button svg{width:17px;height:17px}
+    .field{
+      display:flex;align-items:center;gap:8px;
+      padding:0 10px 0 13px;
+      font-size:.86rem;font-weight:800;color:var(--muted);
+    }
+    .field.mode{margin-left:auto}
+    select{
+      border:0;outline:0;background:transparent;color:var(--text);
+      cursor:pointer;padding:8px 2px;
+    }
+    .legend{
+      display:flex;flex-wrap:wrap;gap:14px;
+      border-radius:15px;padding:10px 14px;
+      color:var(--muted);font-size:.82rem
+    }
+    .legend-item{display:inline-flex;align-items:center;gap:8px}
+    .legend-swatch{
+      width:14px;height:14px;border-radius:999px;display:inline-block;
+      box-shadow:0 0 16px currentColor inset, 0 0 10px currentColor
+    }
+    .side{display:flex;flex-direction:column;gap:10px}
+    .info-card{
+      border-radius:18px;padding:15px 16px;
+      background:
+        linear-gradient(160deg, rgba(255,255,255,.035), transparent 20%),
+        var(--panel);
+    }
+    .info-label{
+      margin:0 0 8px;
+      color:var(--muted);
+      font-size:.72rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;
+    }
+    .event-title{
+      margin:0;min-height:2.35em;font-size:1.25rem;line-height:1.16;letter-spacing:-.02em
+    }
+    .event-body{margin:8px 0 0;min-height:4.45em;color:var(--muted);line-height:1.48}
+    .progress-row{
+      display:flex;justify-content:space-between;gap:12px;
+      margin-top:14px;color:var(--muted);font-size:.87rem
+    }
+    .progress-track{
+      margin-top:8px;height:8px;border-radius:999px;overflow:hidden;
+      background:rgba(255,255,255,.06)
+    }
+    .progress-fill{
+      height:100%;width:0;border-radius:inherit;
+      background:linear-gradient(90deg,var(--gold),var(--orange),var(--pink));
+      transition:width .18s ease
+    }
+    .line-list,.waiting-list{display:flex;flex-wrap:wrap;gap:7px;min-height:32px}
+    .chip{
+      display:inline-flex;align-items:center;gap:7px;min-height:30px;
+      padding:5px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.11);
+      background:rgba(255,255,255,.05);
+      color:#f7f3ee;font-size:.82rem;font-weight:800
+    }
+    .chip::before{
+      content:"";width:8px;height:8px;border-radius:999px;background:var(--blue);
+      box-shadow:0 0 12px currentColor
+    }
+    .chip.coach::before{background:var(--gold)}
+    .chip.waiting::before{background:var(--green)}
+    .chip.turning::before{background:var(--orange)}
+    .chip.rookie{border-color:rgba(255,140,120,.3)}
+    .rule{
+      display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;
+      color:var(--muted);font-size:.88rem;line-height:1.42
+    }
+    .rule+.rule{margin-top:10px}
+    .rule-number{
+      width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+      font-size:.78rem;font-weight:900;background:rgba(242,196,109,.11);
+      border:1px solid rgba(242,196,109,.18);color:#fff1d2
+    }
+    .small-note{margin-top:10px;color:#a5927f;font-size:.78rem;line-height:1.45}
+    @media (max-width:980px){
+      header{align-items:flex-start}
+      .brand-note{display:none}
+      .layout{grid-template-columns:1fr}
+      .side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+      .side .rules-card{grid-column:1/-1}
+    }
+    @media (max-width:700px){
+      body{padding:10px}
+      .stage-card{padding:7px;border-radius:18px}
+      canvas{border-radius:12px}
+      .side{display:flex}
+      .controls{padding:10px}
+      .control-button{flex:1}
+      .field{width:100%;justify-content:space-between}
+      .field.mode{margin-left:0}
+      .legend{font-size:.76rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">Muay Thai etiquette demo</p>
+        <h1>Props circle animation — with rookie mistake mode</h1>
+      </div>
+      <p class="brand-note">Intro bow, “Sawatdee khrap,” stick-fighter style gloves, and a switch between the correct flow and the classic end-of-line mistake. Sound effects are synthesized in-browser.</p>
+    </header>
+
+    <div class="layout">
+      <section class="stage-col">
+        <div class="stage-card" aria-label="Animated props circle demonstration">
+          <canvas id="stage" width="1800" height="1240"></canvas>
+        </div>
+
+        <div class="controls">
+          <button class="control-button primary" id="playPauseButton" type="button">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path id="playPauseIcon" d="M8 5v14l11-7z"/></svg>
+            <span id="playPauseText">Play</span>
+          </button>
+          <button class="control-button" id="nextButton" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M14 7l5 5-5 5"/></svg>
+            Next prop
+          </button>
+          <button class="control-button" id="restartButton" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            Restart
+          </button>
+
+          <label class="field mode">
+            Demo mode
+            <select id="modeSelect" aria-label="Demo mode">
+              <option value="correct" selected>Correct method</option>
+              <option value="rookie">Rookie mistake</option>
+            </select>
+          </label>
+
+
+          <label class="field">
+            Sound
+            <select id="soundSelect" aria-label="Sound">
+              <option value="on" selected>On</option>
+              <option value="off">Off</option>
+            </select>
+          </label>
+
+          <label class="field">
+            Speed
+            <select id="speedSelect" aria-label="Animation speed">
+              <option value="0.65">0.65×</option>
+              <option value="1" selected>1×</option>
+              <option value="1.45">1.45×</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="legend" aria-hidden="true">
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--gold);color:var(--gold)"></span>Coach</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--green);color:var(--green)"></span>Still moving left</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--blue);color:var(--blue)"></span>Joined behind coach</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--orange);color:var(--orange)"></span>Turning around</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:var(--pink);color:var(--pink)"></span>Current prop</span>
+        </div>
+      </section>
+
+      <aside class="side">
+        <section class="info-card">
+          <p class="info-label" id="eventLabel">Greeting</p>
+          <h2 class="event-title" id="eventTitle">Everyone bows and says “Sawatdee khrap”</h2>
+          <p class="event-body" id="eventBody">The intro starts with a respectful bow. After that, the class turns left, while the coach turns right to begin the moving props line.</p>
+          <div class="progress-row">
+            <span>Props completed</span>
+            <strong id="progressText">0 / 28</strong>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </section>
+
+        <section class="info-card">
+          <p class="info-label">Growing line</p>
+          <div class="line-list" id="lineList"></div>
+          <p class="info-label" id="waitingHeading" style="margin-top:16px">Still moving left</p>
+          <div class="waiting-list" id="waitingList"></div>
+        </section>
+
+        <section class="info-card rules-card">
+          <p class="info-label">Flow of the drill</p>
+          <div class="rule">
+            <span class="rule-number">1</span>
+            <span>Bow, then everyone turns left; the coach turns right.</span>
+          </div>
+          <div class="rule">
+            <span class="rule-number">2</span>
+            <span>The coach props the next person, then everyone already behind the coach props that same person.</span>
+          </div>
+          <div class="rule">
+            <span class="rule-number">3</span>
+            <span>As soon as that person has met the whole line, they turn around and join the back. In rookie mode, one person forgets this on purpose.</span>
+          </div>
+          <div class="small-note">This version uses generic styling only.</div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const canvas = document.getElementById("stage");
+    const ctx = canvas.getContext("2d");
+
+    const playPauseButton = document.getElementById("playPauseButton");
+    const playPauseText = document.getElementById("playPauseText");
+    const playPauseIcon = document.getElementById("playPauseIcon");
+    const nextButton = document.getElementById("nextButton");
+    const restartButton = document.getElementById("restartButton");
+    const speedSelect = document.getElementById("speedSelect");
+    const modeSelect = document.getElementById("modeSelect");
+    const soundSelect = document.getElementById("soundSelect");
+
+    const eventLabel = document.getElementById("eventLabel");
+    const eventTitle = document.getElementById("eventTitle");
+    const eventBody = document.getElementById("eventBody");
+    const progressText = document.getElementById("progressText");
+    const progressFill = document.getElementById("progressFill");
+    const lineList = document.getElementById("lineList");
+    const waitingList = document.getElementById("waitingList");
+    const waitingHeading = document.getElementById("waitingHeading");
+
+    const W = 900;
+    const H = 620;
+    const DPR = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
+    const TAU = Math.PI * 2;
+    const PERSON_COUNT = 8;
+    const TOTAL_PAIRS = PERSON_COUNT * (PERSON_COUNT - 1) / 2;
+    const START_ANGLE = -Math.PI / 2;
+    const CENTRE = {x: 450, y: 313};
+    const BASE_RADIUS = 212;
+    const INNER_RADIUS = 182;
+    const OUTER_RADIUS = 244;
+    const ANGULAR_SPEED = 0.30;
+    const CONTACT_WINDOW = 0.045;
+    const TURN_DELAY = 0.20;
+    const TURN_DURATION = 0.88;
+    const GREETING_DURATION = 2.05;
+    const TURN_SETUP_DURATION = 1.45;
+    const ROOKIE_CONFUSION_DURATION = 1.55;
+    const ROOKIE_ID = 4; // D
+
+    const colours = {
+      coach:"#f2c46d",
+      waiting:"#55d8b1",
+      joined:"#7d90ff",
+      turning:"#ff9966",
+      active:"#ff5e8e",
+      muted:"#c0b3a2",
+      red:"#ea4b4b",
+      matGold:"#d99c2b",
+      line:"#f9f4ee"
+    };
+
+    let audioContext = null;
+    let soundEnabled = true;
+
+    function ensureAudio(){
+      if(!soundEnabled) return null;
+      if(!audioContext){
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(!AudioCtx) return null;
+        audioContext = new AudioCtx();
+      }
+      if(audioContext.state === "suspended") audioContext.resume();
+      return audioContext;
+    }
+
+    function makeEnvelope(gainNode, when, attack, decay, peak){
+      gainNode.gain.setValueAtTime(0.0001, when);
+      gainNode.gain.exponentialRampToValueAtTime(Math.max(peak, 0.0002), when + attack);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, when + attack + decay);
+    }
+
+    function playPropSound(){
+      const ac = ensureAudio();
+      if(!ac) return;
+      const now = ac.currentTime;
+
+      const osc1 = ac.createOscillator();
+      const gain1 = ac.createGain();
+      osc1.type = "triangle";
+      osc1.frequency.setValueAtTime(260, now);
+      osc1.frequency.exponentialRampToValueAtTime(190, now + 0.06);
+      makeEnvelope(gain1, now, 0.003, 0.08, 0.045);
+      osc1.connect(gain1).connect(ac.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.1);
+
+      const osc2 = ac.createOscillator();
+      const gain2 = ac.createGain();
+      osc2.type = "square";
+      osc2.frequency.setValueAtTime(420, now + 0.01);
+      osc2.frequency.exponentialRampToValueAtTime(300, now + 0.08);
+      makeEnvelope(gain2, now + 0.01, 0.002, 0.06, 0.018);
+      osc2.connect(gain2).connect(ac.destination);
+      osc2.start(now + 0.01);
+      osc2.stop(now + 0.1);
+    }
+
+    function playBowSound(){
+      const ac = ensureAudio();
+      if(!ac) return;
+      const now = ac.currentTime;
+
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(680, now + 0.18);
+      makeEnvelope(gain, now, 0.01, 0.35, 0.03);
+      osc.connect(gain).connect(ac.destination);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    }
+
+    function playCompleteSound(){
+      const ac = ensureAudio();
+      if(!ac) return;
+      const now = ac.currentTime;
+      const notes = [440, 554.37, 659.25];
+      notes.forEach((freq, i) => {
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now + i * 0.07);
+        makeEnvelope(gain, now + i * 0.07, 0.01, 0.28, 0.04);
+        osc.connect(gain).connect(ac.destination);
+        osc.start(now + i * 0.07);
+        osc.stop(now + i * 0.07 + 0.35);
+      });
+    }
+
+    const labels = ["Coach","A","B","C","D","E","F","G"];
+
+    let people = [];
+    let completedPairs = new Set();
+    let effects = [];
+    let running = false;
+    let speed = 1;
+    let demoMode = "correct";
+    let phase = "greeting";
+    let phaseTime = 0;
+    let lastFrame = performance.now();
+    let pauseOnNextProp = false;
+    let completeTime = 0;
+
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+    function lerp(a, b, t){ return a + (b - a) * t; }
+    function wrapAngle(angle){ return Math.atan2(Math.sin(angle), Math.cos(angle)); }
+    function easeInOutCubic(t){ return t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2; }
+    function easeInOutSine(t){ return -(Math.cos(Math.PI * t) - 1) / 2; }
+    function pairKey(a, b){ return `${Math.min(a,b)}-${Math.max(a,b)}`; }
+
+    function setNarration(label, title, body){
+      eventLabel.textContent = label;
+      eventTitle.textContent = title;
+      eventBody.textContent = body;
+    }
+
+    function pointOnCircle(angle, radius){
+      return {
+        x: CENTRE.x + Math.cos(angle) * radius,
+        y: CENTRE.y + Math.sin(angle) * radius
+      };
+    }
+
+    function joinedPeople(){
+      return people.filter(p => p.state === "joined");
+    }
+
+    function notYetJoinedPeople(){
+      return people.filter(p => p.id !== 0 && p.state !== "joined");
+    }
+
+    function countEarlierProps(personId){
+      let count = 0;
+      for(let i = 0; i < personId; i += 1){
+        if(completedPairs.has(pairKey(i, personId))) count += 1;
+      }
+      return count;
+    }
+
+    function updateInterface(){
+      progressText.textContent = `${completedPairs.size} / ${TOTAL_PAIRS}`;
+      progressFill.style.width = `${(completedPairs.size / TOTAL_PAIRS) * 100}%`;
+
+      const joined = joinedPeople();
+      lineList.innerHTML = joined.map(person => (
+        `<span class="chip ${person.id === 0 ? "coach" : ""}">${person.label}</span>`
+      )).join("");
+
+      const waiting = notYetJoinedPeople();
+      waitingHeading.textContent = waiting.length ? "Still moving left" : "Circle cleared";
+      waitingList.innerHTML = waiting.length
+        ? waiting.map(person => {
+            let cls = "waiting";
+            if(person.state === "turning" || person.state === "pending" || person.state === "mistake") cls = "turning";
+            const rookieClass = (demoMode === "rookie" && person.id === ROOKIE_ID) ? "rookie" : "";
+            return `<span class="chip ${cls} ${rookieClass}">${person.label}</span>`;
+          }).join("")
+        : `<span class="chip">Everyone joined</span>`;
+    }
+
+    function updatePlayButton(){
+      playPauseText.textContent = running ? "Pause" : (phase === "complete" ? "Replay" : "Play");
+      playPauseIcon.setAttribute("d", running ? "M7 5h4v14H7zm6 0h4v14h-4z" : "M8 5v14l11-7z");
+    }
+
+    function resetSimulation(autoPlay = false){
+      people = labels.map((label, id) => ({
+        id,
+        label,
+        angle: START_ANGLE - id * (TAU / PERSON_COUNT),
+        state: id === 0 ? "joined" : "waiting",
+        facingOffset: Math.PI,
+        radius: BASE_RADIUS,
+        pending: 0,
+        turnProgress: 0,
+        screenX: 0,
+        screenY: 0,
+        mistakeTimer: 0,
+        madeMistake: false,
+        confusionPulse: 0
+      }));
+
+      completedPairs = new Set();
+      effects = [];
+      running = autoPlay;
+      phase = "greeting";
+      phaseTime = 0;
+      completeTime = 0;
+      pauseOnNextProp = false;
+
+      setNarration(
+        "Greeting",
+        "Everyone bows and says “Sawatdee khrap”",
+        "The intro starts with a respectful bow. After that, the class turns left, while the coach turns right to begin the moving props line."
+      );
+      if(soundEnabled) window.setTimeout(() => { try { playBowSound(); } catch(e) {} }, 120);
+
+      updateInterface();
+      updatePlayButton();
+      draw();
+    }
+
+    function registerProp(linePerson, waitingPerson){
+      const key = pairKey(linePerson.id, waitingPerson.id);
+      if(completedPairs.has(key)) return;
+
+      completedPairs.add(key);
+      effects.push({a: linePerson.id, b: waitingPerson.id, age:0, duration:.64});
+      playPropSound();
+
+      setNarration(
+        "Props exchange",
+        `${linePerson.label} props ${waitingPerson.label}`,
+        `${waitingPerson.label} keeps moving until they have propped everyone already in the line. Then they should turn around and join the back.`
+      );
+
+      if(countEarlierProps(waitingPerson.id) === waitingPerson.id){
+        if(demoMode === "rookie" && waitingPerson.id === ROOKIE_ID && !waitingPerson.madeMistake){
+          waitingPerson.state = "mistake";
+          waitingPerson.madeMistake = true;
+          waitingPerson.mistakeTimer = ROOKIE_CONFUSION_DURATION;
+          setNarration(
+            "Rookie mistake",
+            `${waitingPerson.label} forgets to turn around`,
+            `${waitingPerson.label} has already propped everyone in the line, but keeps going left for a moment instead of immediately turning back behind the coach.`
+          );
+        } else {
+          waitingPerson.state = "pending";
+          waitingPerson.pending = TURN_DELAY;
+        }
+      }
+
+      updateInterface();
+
+      if(pauseOnNextProp){
+        pauseOnNextProp = false;
+        running = false;
+        updatePlayButton();
+      }
+    }
+
+    function beginTurn(person){
+      person.state = "turning";
+      person.turnProgress = 0;
+      setNarration(
+        "Turn-around point",
+        `${person.label} turns around`,
+        `${person.label} has now met the whole line, so they turn around and join at the back behind the last person.`
+      );
+      updateInterface();
+    }
+
+    function finishTurn(person){
+      person.state = "joined";
+      person.facingOffset = Math.PI * 1.5;
+      person.radius = INNER_RADIUS;
+
+      const previous = people[person.id - 1];
+      setNarration(
+        "Line grows",
+        `${person.label} joins behind ${previous.label}`,
+        `Now ${person.label} will prop the next person shortly after ${previous.label} does.`
+      );
+      updateInterface();
+
+      if(people.every(item => item.state === "joined")){
+        phase = "complete";
+        completeTime = 0;
+        setNarration(
+          "Complete",
+          demoMode === "rookie" ? "The line recovers and finishes cleanly" : "Everybody is in one line",
+          demoMode === "rookie"
+            ? "You can see why the turn-around matters: once the rookie fixes it, the sequence works again."
+            : "Every pair exchanged props once. The important moment is the immediate turn after a person finishes meeting the line."
+        );
+        playCompleteSound();
+        updateInterface();
+      }
+    }
+
+    function updateSimulation(realDt){
+      const dt = realDt * speed;
+
+      if(phase === "greeting"){
+        phaseTime += dt;
+        const raw = clamp(phaseTime / GREETING_DURATION, 0, 1);
+        const t = easeInOutSine(raw);
+        people.forEach(person => {
+          person.radius = BASE_RADIUS;
+          person.facingOffset = Math.PI;
+          person.bow = Math.sin(Math.PI * t) * 0.7;
+        });
+
+        if(raw >= 1){
+          phase = "turn";
+          phaseTime = 0;
+          setNarration(
+            "First movement",
+            "Class turns left; coach turns right",
+            "The two directions now face each other. The person on the coach’s right will meet the coach first."
+          );
+        }
+        return;
+      }
+
+      if(phase === "turn"){
+        phaseTime += dt;
+        const raw = clamp(phaseTime / TURN_SETUP_DURATION, 0, 1);
+        const t = easeInOutCubic(raw);
+
+        people.forEach(person => {
+          person.bow = 0;
+          if(person.id === 0){
+            person.facingOffset = Math.PI + (Math.PI / 2) * t;
+            person.radius = lerp(BASE_RADIUS, INNER_RADIUS, t);
+          }else{
+            person.facingOffset = Math.PI - (Math.PI / 2) * t;
+            person.radius = lerp(BASE_RADIUS, OUTER_RADIUS, t);
+          }
+        });
+
+        if(raw >= 1){
+          phase = "flow";
+          phaseTime = 0;
+          people[0].facingOffset = Math.PI * 1.5;
+          for(let i = 1; i < people.length; i += 1) people[i].facingOffset = Math.PI / 2;
+        }
+        return;
+      }
+
+      if(phase === "complete"){
+        completeTime += dt;
+        const coast = Math.max(0, 1 - completeTime / 2.2);
+        people.forEach(person => {
+          person.angle -= ANGULAR_SPEED * dt * 0.42 * coast;
+          person.bow = 0;
+        });
+        if(completeTime > 2.2){
+          running = false;
+          updatePlayButton();
+        }
+        return;
+      }
+
+      people.forEach(person => {
+        person.bow = 0;
+
+        if(person.state === "joined"){
+          person.angle -= ANGULAR_SPEED * dt;
+          person.radius = INNER_RADIUS;
+          person.facingOffset = Math.PI * 1.5;
+        }else if(person.state === "waiting"){
+          person.angle += ANGULAR_SPEED * dt;
+          person.radius = OUTER_RADIUS;
+          person.facingOffset = Math.PI / 2;
+        }else if(person.state === "pending"){
+          person.angle += ANGULAR_SPEED * dt;
+          person.pending -= dt;
+          person.radius = OUTER_RADIUS;
+          person.facingOffset = Math.PI / 2;
+          if(person.pending <= 0) beginTurn(person);
+        }else if(person.state === "mistake"){
+          person.angle += ANGULAR_SPEED * dt;
+          person.radius = OUTER_RADIUS + Math.sin(performance.now() / 120 + person.id) * 2;
+          person.facingOffset = Math.PI / 2;
+          person.mistakeTimer -= dt;
+          person.confusionPulse += dt;
+          if(person.mistakeTimer <= 0){
+            beginTurn(person);
+          }
+        }else if(person.state === "turning"){
+          person.turnProgress = clamp(person.turnProgress + dt / TURN_DURATION, 0, 1);
+          const t = easeInOutCubic(person.turnProgress);
+          person.radius = lerp(OUTER_RADIUS, INNER_RADIUS, t);
+          person.facingOffset = Math.PI / 2 + Math.PI * t;
+          if(person.turnProgress >= 1) finishTurn(person);
+        }
+      });
+
+      for(let waitingId = 1; waitingId < people.length; waitingId += 1){
+        const waitingPerson = people[waitingId];
+        if(waitingPerson.state !== "waiting") continue;
+
+        for(let lineId = 0; lineId < waitingId; lineId += 1){
+          const linePerson = people[lineId];
+          const key = pairKey(lineId, waitingId);
+          if(linePerson.state !== "joined" || completedPairs.has(key)) continue;
+
+          const angularDistance = Math.abs(wrapAngle(waitingPerson.angle - linePerson.angle));
+          if(angularDistance <= CONTACT_WINDOW){
+            registerProp(linePerson, waitingPerson);
+          }
+        }
+      }
+    }
+
+    function updateEffects(realDt){
+      effects.forEach(effect => { effect.age += realDt; });
+      effects = effects.filter(effect => effect.age < effect.duration);
+    }
+
+    function roundRectPath(x, y, width, height, radius){
+      const r = Math.min(radius, width / 2, height / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + width, y, x + width, y + height, r);
+      ctx.arcTo(x + width, y + height, x, y + height, r);
+      ctx.arcTo(x, y + height, x, y, r);
+      ctx.arcTo(x, y, x + width, y, r);
+      ctx.closePath();
+    }
+
+    function drawSpeechBubble(x, y, text, alpha = 1, small = false){
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      const padX = small ? 8 : 12;
+      const padY = small ? 5 : 7;
+      ctx.font = `${small ? 700 : 800} ${small ? 10 : 13}px Inter, system-ui, sans-serif`;
+      const width = ctx.measureText(text).width + padX * 2;
+      const height = small ? 24 : 30;
+      roundRectPath(x - width / 2, y - height / 2, width, height, 12);
+      ctx.fillStyle = "rgba(20,16,13,.94)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,.14)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x - 8, y + height / 2 - 2);
+      ctx.lineTo(x, y + height / 2 + 9);
+      ctx.lineTo(x + 8, y + height / 2 - 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#fff7ea";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, x, y + 1);
+      ctx.restore();
+    }
+
+    function drawArrowOnRing(angle, radius, clockwise, colour, alpha = 1){
+      const position = pointOnCircle(angle, radius);
+      const tangent = angle + (clockwise ? Math.PI / 2 : -Math.PI / 2);
+      const length = 22;
+      const x2 = position.x + Math.cos(tangent) * length;
+      const y2 = position.y + Math.sin(tangent) * length;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = colour;
+      ctx.fillStyle = colour;
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(position.x - Math.cos(tangent) * 8, position.y - Math.sin(tangent) * 8);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      ctx.translate(x2, y2);
+      ctx.rotate(tangent);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-9, -6);
+      ctx.lineTo(-9, 6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawMat(){
+      const bg = ctx.createLinearGradient(0, 0, W, H);
+      bg.addColorStop(0, "#0e0b09");
+      bg.addColorStop(.55, "#14100c");
+      bg.addColorStop(1, "#0a0908");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      const glow = ctx.createRadialGradient(CENTRE.x, CENTRE.y, 30, CENTRE.x, CENTRE.y, 360);
+      glow.addColorStop(0, "rgba(255,180,90,.11)");
+      glow.addColorStop(.5, "rgba(200,40,20,.05)");
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.save();
+      ctx.translate(CENTRE.x, CENTRE.y);
+      ctx.strokeStyle = "rgba(255,255,255,.04)";
+      ctx.lineWidth = 1;
+      for(let r = 44; r <= 294; r += 42){
+        ctx.beginPath();
+        ctx.arc(0, 0, r, 0, TAU);
+        ctx.stroke();
+      }
+      for(let a = 0; a < TAU; a += Math.PI / 8){
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a) * 36, Math.sin(a) * 36);
+        ctx.lineTo(Math.cos(a) * 296, Math.sin(a) * 296);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(85,216,177,.23)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([7, 10]);
+      ctx.beginPath();
+      ctx.arc(CENTRE.x, CENTRE.y, OUTER_RADIUS, 0, TAU);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(125,144,255,.23)";
+      ctx.beginPath();
+      ctx.arc(CENTRE.x, CENTRE.y, INNER_RADIUS, 0, TAU);
+      ctx.stroke();
+      ctx.restore();
+
+      for(let i = 0; i < 4; i += 1){
+        drawArrowOnRing(-0.76 + i * 1.58, OUTER_RADIUS, true, colours.waiting, .75);
+        drawArrowOnRing(0.02 + i * 1.58, INNER_RADIUS, false, colours.joined, .75);
+      }
+
+      ctx.save();
+      ctx.translate(CENTRE.x, CENTRE.y);
+      ctx.rotate(Math.PI / 8);
+      ctx.fillStyle = "rgba(24,17,13,.96)";
+      ctx.strokeStyle = "rgba(242,196,109,.25)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for(let i = 0; i < 8; i += 1){
+        const a = i * TAU / 8;
+        const x = Math.cos(a) * 86;
+        const y = Math.sin(a) * 86;
+        if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#f9f4ee";
+      ctx.font = "900 18px Inter, system-ui, sans-serif";
+      ctx.fillText("MUAY THAI", CENTRE.x, CENTRE.y - 10);
+      ctx.fillStyle = "rgba(242,196,109,.95)";
+      ctx.font = "800 10px Inter, system-ui, sans-serif";
+      ctx.fillText("PROPS CIRCLE DEMO", CENTRE.x, CENTRE.y + 11);
+      ctx.fillStyle = "rgba(192,179,162,.85)";
+      ctx.font = "700 10px Inter, system-ui, sans-serif";
+      ctx.fillText("RESPECT • TEAMWORK", CENTRE.x, CENTRE.y + 28);
+
+      drawLaneLabels();
+    }
+
+    function drawLaneLabels(){
+      ctx.save();
+      ctx.font = "800 11px Inter, system-ui, sans-serif";
+      ctx.textAlign = "left";
+
+      roundRectPath(31, 25, 208, 44, 13);
+      ctx.fillStyle = "rgba(10,9,8,.76)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(85,216,177,.16)";
+      ctx.stroke();
+      ctx.fillStyle = colours.waiting;
+      ctx.fillText("OUTER LANE • CLASS TURNS LEFT", 48, 52);
+
+      roundRectPath(W - 240, 25, 209, 44, 13);
+      ctx.fillStyle = "rgba(10,9,8,.76)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(125,144,255,.16)";
+      ctx.stroke();
+      ctx.fillStyle = colours.joined;
+      ctx.fillText("INNER LANE • COACH LINE", W - 223, 52);
+      ctx.restore();
+    }
+
+    function drawLineConnection(){
+      const joined = joinedPeople();
+      if(joined.length < 2) return;
+
+      ctx.save();
+      ctx.strokeStyle = "rgba(125,144,255,.18)";
+      ctx.lineWidth = 11;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      joined.forEach((person, idx) => {
+        const p = pointOnCircle(person.angle, person.radius);
+        if(idx === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function personColour(person){
+      if(person.id === 0) return colours.coach;
+      if(person.state === "joined") return colours.joined;
+      if(person.state === "turning" || person.state === "pending" || person.state === "mistake") return colours.turning;
+      return colours.waiting;
+    }
+
+    function isPersonActive(id){
+      const exchanging = effects.some(effect => effect.a === id || effect.b === id);
+      const firstMeeting = phase === "turn" && phaseTime > TURN_SETUP_DURATION * 0.58 && (id === 0 || id === 1);
+      return exchanging || firstMeeting;
+    }
+
+    function drawFighter(person){
+      const position = pointOnCircle(person.angle, person.radius);
+      person.screenX = position.x;
+      person.screenY = position.y;
+
+      const active = isPersonActive(person.id);
+      const colour = personColour(person);
+      const bodyFacing = person.angle + person.facingOffset - Math.PI / 2;
+      const bow = person.bow || 0;
+
+      ctx.save();
+      ctx.translate(position.x, position.y + 6);
+
+      ctx.fillStyle = "rgba(0,0,0,.30)";
+      ctx.beginPath();
+      ctx.ellipse(0, 18, 17, 8, 0, 0, TAU);
+      ctx.fill();
+
+      if(active){
+        const pulse = 1 + Math.sin(performance.now() / 90) * .08;
+        ctx.strokeStyle = "rgba(255,94,142,.7)";
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.arc(0, 2, 23 * pulse, 0, TAU);
+        ctx.stroke();
+      }
+
+      ctx.rotate(bodyFacing);
+      ctx.translate(0, 8);
+      ctx.rotate(-bow * 0.38);
+      ctx.translate(0, -8);
+
+      ctx.strokeStyle = "#fff8f0";
+      ctx.lineCap = "round";
+      ctx.lineWidth = 3;
+
+      // legs
+      ctx.beginPath();
+      ctx.moveTo(0, 12);
+      ctx.lineTo(-8, 24);
+      ctx.moveTo(0, 12);
+      ctx.lineTo(8, 24);
+      ctx.stroke();
+
+      // torso
+      ctx.strokeStyle = colour;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(0, -2);
+      ctx.lineTo(0, 12);
+      ctx.stroke();
+
+      // hips / shorts
+      ctx.strokeStyle = colour;
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(-8, 10);
+      ctx.lineTo(8, 10);
+      ctx.stroke();
+
+      // arms
+      ctx.strokeStyle = "#f2e6d9";
+      ctx.lineWidth = 3;
+      const leftHand = {x:-12, y:2};
+      const rightHand = {x:12, y:2};
+      ctx.beginPath();
+      ctx.moveTo(0, 2);
+      ctx.lineTo(leftHand.x, leftHand.y);
+      ctx.moveTo(0, 2);
+      ctx.lineTo(rightHand.x, rightHand.y);
+      ctx.stroke();
+
+      // head
+      ctx.fillStyle = "#f2c9a6";
+      ctx.beginPath();
+      ctx.arc(0, -12, 8.5, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,.45)";
+      ctx.lineWidth = 1.3;
+      ctx.stroke();
+
+      // gloves
+      const gloveLeft = active ? colours.active : colours.red;
+      const gloveRight = active ? "#ffd36a" : colours.red;
+      ctx.fillStyle = gloveLeft;
+      ctx.beginPath();
+      ctx.arc(leftHand.x, leftHand.y, 5.4, 0, TAU);
+      ctx.fill();
+      ctx.fillStyle = gloveRight;
+      ctx.beginPath();
+      ctx.arc(rightHand.x, rightHand.y, 5.4, 0, TAU);
+      ctx.fill();
+
+      // coach headband
+      if(person.id === 0){
+        ctx.fillStyle = colours.coach;
+        ctx.beginPath();
+        ctx.moveTo(-8, -14);
+        ctx.lineTo(-2, -18);
+        ctx.lineTo(8, -15);
+        ctx.lineTo(2, -11);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      ctx.restore();
+
+      // label
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "900 12px Inter, system-ui, sans-serif";
+      ctx.fillStyle = "rgba(249,244,238,.96)";
+      ctx.fillText(person.id === 0 ? "Coach" : person.label, position.x, position.y + 38);
+      ctx.restore();
+
+      if(person.state === "turning"){
+        drawTurnArrow(person);
+        drawSpeechBubble(position.x, position.y - 38, "Turn around", .95, true);
+      }
+
+      if(person.state === "mistake"){
+        const alpha = 0.7 + Math.sin(performance.now() / 180) * 0.22;
+        drawSpeechBubble(position.x, position.y - 42, "Oops… turn!", alpha, true);
+      }
+    }
+
+    function drawTurnArrow(person){
+      const x = person.screenX;
+      const y = person.screenY;
+      const progress = easeInOutCubic(person.turnProgress);
+      ctx.save();
+      ctx.strokeStyle = colours.turning;
+      ctx.fillStyle = colours.turning;
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.arc(x, y, 32, -Math.PI * .8, -Math.PI * .8 + Math.PI * 1.42 * progress);
+      ctx.stroke();
+      const a = -Math.PI * .8 + Math.PI * 1.42 * progress;
+      const px = x + Math.cos(a) * 32;
+      const py = y + Math.sin(a) * 32;
+      ctx.translate(px, py);
+      ctx.rotate(a + Math.PI / 2);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-8, -5);
+      ctx.lineTo(-8, 5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawEffects(){
+      effects.forEach(effect => {
+        const a = people[effect.a];
+        const b = people[effect.b];
+        if(!a || !b) return;
+
+        const t = clamp(effect.age / effect.duration, 0, 1);
+        const alpha = 1 - t;
+        const midX = (a.screenX + b.screenX) / 2;
+        const midY = (a.screenY + b.screenY) / 2;
+        const dx = b.screenX - a.screenX;
+        const dy = b.screenY - a.screenY;
+        const length = Math.hypot(dx, dy) || 1;
+        const ux = dx / length;
+        const uy = dy / length;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = "rgba(255,94,142,.8)";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([4, 6]);
+        ctx.beginPath();
+        ctx.moveTo(a.screenX, a.screenY);
+        ctx.lineTo(b.screenX, b.screenY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = colours.active;
+        ctx.beginPath();
+        ctx.arc(midX - ux * 4, midY - uy * 4, 6.5, 0, TAU);
+        ctx.fill();
+        ctx.fillStyle = "#ffd36a";
+        ctx.beginPath();
+        ctx.arc(midX + ux * 4, midY + uy * 4, 6.5, 0, TAU);
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(255,255,255,.85)";
+        ctx.lineWidth = 2;
+        for(let i = 0; i < 6; i += 1){
+          const angle = i * TAU / 6 + .2;
+          const inner = 12 + t * 4;
+          const outer = 21 + t * 10;
+          ctx.beginPath();
+          ctx.moveTo(midX + Math.cos(angle) * inner, midY + Math.sin(angle) * inner);
+          ctx.lineTo(midX + Math.cos(angle) * outer, midY + Math.sin(angle) * outer);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      });
+    }
+
+    function drawIntroOverlay(){
+      if(phase === "greeting"){
+        const t = clamp(phaseTime / GREETING_DURATION, 0, 1);
+        const alpha = .25 + Math.sin(Math.PI * t) * .75;
+
+        people.forEach((person, idx) => {
+          const p = pointOnCircle(person.angle, person.radius);
+          const offsetX = Math.cos(person.angle) * 18;
+          const offsetY = Math.sin(person.angle) * 18;
+          drawSpeechBubble(p.x + offsetX, p.y - 40 + offsetY * .2, "Sawatdee khrap", alpha * (0.72 + (idx % 3) * 0.08), true);
+        });
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.textAlign = "center";
+        ctx.fillStyle = colours.coach;
+        ctx.font = "900 18px Inter, system-ui, sans-serif";
+        ctx.fillText("RESPECTFUL BOW", CENTRE.x, 96);
+        ctx.restore();
+      }
+
+      if(phase === "turn"){
+        const t = clamp(phaseTime / TURN_SETUP_DURATION, 0, 1);
+        const alpha = .35 + Math.sin(Math.PI * t) * .65;
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.textAlign = "center";
+        ctx.font = "900 17px Inter, system-ui, sans-serif";
+        ctx.fillStyle = colours.coach;
+        ctx.fillText("COACH TURNS RIGHT", CENTRE.x, 98);
+        ctx.fillStyle = colours.waiting;
+        ctx.fillText("EVERYONE ELSE TURNS LEFT", CENTRE.x, H - 52);
+        ctx.restore();
+      }
+    }
+
+    function drawCompleteOverlay(){
+      if(phase !== "complete" || completeTime < .25) return;
+      const alpha = clamp((completeTime - .25) / .55, 0, 1);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      roundRectPath(CENTRE.x - 148, CENTRE.y - 52, 296, 104, 20);
+      ctx.fillStyle = "rgba(15,11,10,.92)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(242,196,109,.32)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#f9f4ee";
+      ctx.font = "900 22px Inter, system-ui, sans-serif";
+      ctx.fillText(demoMode === "rookie" ? "Recovered after the rookie mistake" : "Every pair propped once", CENTRE.x, CENTRE.y - 8);
+      ctx.fillStyle = colours.muted;
+      ctx.font = "700 12px Inter, system-ui, sans-serif";
+      ctx.fillText(demoMode === "rookie" ? "The missed turn is what causes the confusion." : "The whole circle is now one moving line.", CENTRE.x, CENTRE.y + 20);
+      ctx.restore();
+    }
+
+    function draw(){
+      drawMat();
+      drawLineConnection();
+
+      people.forEach(person => {
+        const position = pointOnCircle(person.angle, person.radius);
+        person.screenX = position.x;
+        person.screenY = position.y;
+      });
+
+      people.slice().sort((a,b) => a.screenY - b.screenY).forEach(drawFighter);
+
+      drawEffects();
+      drawIntroOverlay();
+      drawCompleteOverlay();
+    }
+
+
+    function unlockAudioFromInteraction(){
+      try { ensureAudio(); } catch(e) {}
+    }
+
+    playPauseButton.addEventListener("pointerdown", unlockAudioFromInteraction);
+    nextButton.addEventListener("pointerdown", unlockAudioFromInteraction);
+    restartButton.addEventListener("pointerdown", unlockAudioFromInteraction);
+
+    function frame(now){
+      const realDt = Math.min(.034, Math.max(0, (now - lastFrame) / 1000));
+      lastFrame = now;
+
+      updateEffects(realDt);
+      if(running) updateSimulation(realDt);
+      draw();
+      requestAnimationFrame(frame);
+    }
+
+    playPauseButton.addEventListener("click", () => {
+      if(phase === "complete" && !running){
+        resetSimulation(true);
+        return;
+      }
+      running = !running;
+      pauseOnNextProp = false;
+      updatePlayButton();
+    });
+
+    nextButton.addEventListener("click", () => {
+      if(phase === "complete") resetSimulation(false);
+      pauseOnNextProp = true;
+      running = true;
+      updatePlayButton();
+    });
+
+    restartButton.addEventListener("click", () => {
+      resetSimulation(true);
+    });
+
+    speedSelect.addEventListener("change", e => {
+      speed = Number(e.target.value) || 1;
+    });
+
+    soundSelect.addEventListener("change", e => {
+      soundEnabled = (e.target.value || "on") === "on";
+      if(soundEnabled) { try { ensureAudio(); } catch(err) {} }
+    });
+
+    modeSelect.addEventListener("change", e => {
+      demoMode = e.target.value || "correct";
+      resetSimulation(false);
+    });
+
+    resetSimulation(false);
+    requestAnimationFrame(frame);
+
+    window.setTimeout(() => {
+      if((phase === "greeting" || phase === "turn") && !running){
+        running = true;
+        updatePlayButton();
+      }
+    }, 450);
+  </script>
+</body>
+</html>
